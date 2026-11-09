@@ -23,13 +23,14 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/health', (req, res) => res.send('ok'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ---- One shared Chromium instance (fast; relaunches itself if it ever dies) ----
 let browserPromise = null;
 function getBrowser() {
   if (!browserPromise) {
-    browserPromise = chromium.launch().then((b) => {
+    browserPromise = chromium.launch({ args: ['--no-sandbox', '--disable-dev-shm-usage'] }).then((b) => {
       b.on('disconnected', () => { browserPromise = null; });
       return b;
     });
@@ -100,6 +101,7 @@ async function uploadToDrive(fileName, pdfBuffer) {
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({ fileName, base64: pdfBuffer.toString('base64') }),
     redirect: 'follow',
+    signal: AbortSignal.timeout(60000),
   });
   const text = await response.text();
   try {
@@ -142,7 +144,7 @@ app.post('/api/preview-pdf', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Invoice server running ->  http://localhost:${PORT}`);
   getBrowser().then(() => console.log('Chromium ready')).catch((e) => console.error('Chromium failed to start:', e.message));
 });

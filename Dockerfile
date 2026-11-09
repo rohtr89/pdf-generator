@@ -1,17 +1,15 @@
-# Use the official Microsoft Playwright image which has all dependencies pre-installed
+# Playwright image with Chromium + system libraries preinstalled.
+# IMPORTANT: this tag and the "playwright" version in package.json must match exactly.
 FROM mcr.microsoft.com/playwright:v1.40.0-jammy
 
 WORKDIR /app
 
-# Copy package files and install Express/Cors
 COPY package*.json ./
-RUN npm install
+RUN npm install --omit=dev
 
-# Copy your server.js file
 COPY . .
 
-# Expose the port Render expects
+ENV NODE_ENV=production
 EXPOSE 3000
 
-# Start the server
 CMD ["npm", "start"]

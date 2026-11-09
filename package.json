@@ -1,15 +1,12 @@
 {
-  "name": "kreyasi-invoice-pdf-server",
+  "name": "invoice-pdf-generator",
   "version": "1.0.0",
-  "description": "Renders the invoice HTML to PDF with Playwright + Chromium and uploads it to Google Drive via Apps Script",
   "main": "server.js",
   "scripts": {
-    "postinstall": "playwright install chromium",
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "playwright": "^1.48.0"
-  },
-  "engines": { "node": ">=18" }
+    "express": "^4.18.2",
+    "playwright": "1.40.0"
+  }
 }
