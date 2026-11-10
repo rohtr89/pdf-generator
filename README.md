@@ -1,23 +1,6 @@
-# Kreyasi Invoice – Playwright PDF setup
-
-## One-time setup (Windows)
-1. Install Node.js LTS (18 or newer): https://nodejs.org
-2. Unzip this folder, e.g. to C:\invoice-app
-3. Open the folder, click the address bar, type `cmd`, press Enter, then run:
-       npm install
-   (this also downloads Chromium automatically; ~150 MB, once only)
-
-## Daily use
-Double-click `start-invoice.bat`  (or run `npm start`)
--> the invoice opens at http://localhost:3000
--> fill it in -> "Save to Drive & Print"
-Keep the black server window open while you work.
-
-## No change needed in Google Apps Script
-Your existing Script.txt (doPost / doGet) works as it is.
-If you ever redeploy it and the URL changes, update it in BOTH:
-  - public/index.html  (WEB_APP_URL)
-  - server.js          (APPS_SCRIPT_URL), or set the APPS_SCRIPT_URL environment variable
-
-## Layout testing
-POST the snapshot to /api/preview-pdf to get the PDF back without uploading.
+Invoice PDF server (Render)
+Files: server.js, package.json, Dockerfile, .dockerignore, public/index.html, fonts/
+Output matches the manually printed reference: A4 paper, 100% scale, ~1 cm margins,
+2px #1f2937 outer border, Segoe-UI-compatible font (Selawik) + Noto Sans rupee sign.
+Optional exact Segoe UI: copy segoeui.ttf, segoeuib.ttf, segoeuii.ttf into fonts/ (they are picked up automatically).
+Paper size: set env var PAPER_FORMAT = A4 | Legal | Letter on Render (default A4).
