@@ -14,6 +14,8 @@
             #invoiceContainer { border: none !important; margin: 0 !important; max-width: none !important; }
         }
         table, th, td { border: 1px solid #374151; }
+        .field-disabled { background: #e5e7eb !important; color: #9ca3af !important; cursor: not-allowed !important; }
+        @media print { .field-disabled { background: transparent !important; } }
         input, select { width: 100%; box-sizing: border-box; background: transparent; }
     </style>
 </head>
@@ -52,14 +54,14 @@
 
                 <div class="p-1 border-r border-b border-gray-800">
                     Delivery Note<br>
-                    <select class="outline-none cursor-pointer">
+                    <select id="deliveryNote" class="outline-none cursor-pointer">
                         <option value="Loose">Loose</option>
                         <option value="Packaged">Packaged</option>
                     </select>
                 </div>
                 <div class="p-1 border-b border-gray-800">
                     Mode/Terms of Payment<br>
-                    <select class="outline-none cursor-pointer">
+                    <select id="paymentMode" class="outline-none cursor-pointer">
                         <option value="Cash">Cash</option>
                         <option value="UPI">UPI</option>
                         <option value="Card">Card</option>
@@ -67,7 +69,7 @@
                     </select>
                 </div>
                 <div class="p-1 border-r border-b border-gray-800">Other References<br><input type="text"></div>
-                <div class="p-1 border-b border-gray-800">Transaction ID <br><input type="text"></div>
+                <div id="transactionCell" class="p-1 border-b border-gray-800">Transaction ID <br><input type="text" id="transactionId"></div>
                 <div class="p-1 border-r border-b border-gray-800">Dispatch Doc No.<br><input type="text" value=""></div>
                 <div class="p-1 border-b border-gray-800">
                     Dispatched through<br>
@@ -381,7 +383,32 @@
             document.getElementById('amountWords').innerText = convertNumberToWords(total);
         }
 
-        calc();
+        // --- Payment mode: Cash => Transaction ID is greyed out ---
+        const paymentMode = document.getElementById('paymentMode');
+        const transactionId = document.getElementById('transactionId');
+        const transactionCell = document.getElementById('transactionCell');
+
+        function syncTransactionId() {
+            const isCash = paymentMode.value === 'Cash';
+            transactionId.disabled = isCash;
+            if (isCash) transactionId.value = '';      // no stale ID printed on a cash invoice
+            transactionId.classList.toggle('field-disabled', isCash);
+            transactionCell.classList.toggle('text-gray-400', isCash);
+        }
+        paymentMode.addEventListener('change', syncTransactionId);
+
+        // --- Delivery note: Loose => GST 0%, Packaged => GST 5% (still editable afterwards) ---
+        const deliveryNote = document.getElementById('deliveryNote');
+        const gstPercentInput = document.getElementById('gstPercent');
+
+        function syncGstRate() {
+            gstPercentInput.value = deliveryNote.value === 'Packaged' ? 5 : 0;
+            calc();
+        }
+        deliveryNote.addEventListener('change', syncGstRate);
+
+        syncTransactionId();
+        syncGstRate();   // also runs calc() for the initial state
     </script>
 </body>
 </html>
